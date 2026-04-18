@@ -29,8 +29,8 @@ export type RsvpConfig =
     }
   | {
       /**
-       * POST JSON giống payload trong `RSVP.tsx` (type: wedding_rsvp, data, couple…).
-       * Dùng URL webhook Make/n8n/Pipedream… rồi map sang Google Sheet.
+       * POST JSON: `{ type: 'wedding_rsvp', submittedAt, data: { fullName, message, attendance } }`.
+       * Map sang Sheet đúng 4 cột; Make/n8n bỏ mapping cột cũ (locale, couple, userAgent) nếu có.
        */
       type: 'webhook'
       endpointUrl: string

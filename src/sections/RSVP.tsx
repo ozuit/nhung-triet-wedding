@@ -68,13 +68,11 @@ export default function RSVP({ content }: { content: InvitationContent }) {
       const target = rsvpSubmitTarget(content.rsvp)
       if (!target.enabled) return
 
+      /** Chỉ gửi field cần ghi Sheet (4 cột). Không gửi locale / couple / userAgent để tránh map nhầm cột E–G trên Make. */
       const payload = {
         type: 'wedding_rsvp' as const,
-        locale: content.locale,
-        couple: content.couple,
         submittedAt: new Date().toISOString(),
         data: form,
-        userAgent: navigator.userAgent,
       }
 
       if (target.mode === 'googleSheet') {
