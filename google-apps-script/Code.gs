@@ -8,9 +8,11 @@
  *   - Hoặc bỏ Apps Script: trong site đổi RSVP sang type 'webhook' + Make.com (Webhook → Google Sheets).
  *
  * Triển khai Web App: Chạy dưới tên Tôi, quyền Bất kỳ ai. URL /exec → webAppUrl trong invitation.vi.ts
+ *
+ * Sheet chỉ 4 cột: Thời gian, Họ tên, Tham dự, Lời nhắn. Nếu sheet cũ còn cột Ngôn ngữ / Cặp đôi / User-Agent, xóa các cột đó trên Google Sheet cho gọn.
  */
 
-var HEADER = ['Thời gian', 'Họ tên', 'Tham dự', 'Lời nhắn', 'Ngôn ngữ', 'Cặp đôi', 'User-Agent']
+var HEADER = ['Thời gian', 'Họ tên', 'Tham dự', 'Lời nhắn']
 
 var ATTEND_VI = { yes: 'Có', maybe: 'Chưa chắc', no: 'Không' }
 
@@ -65,10 +67,8 @@ function doPost(e) {
       return jsonOut({ ok: false, error: 'Payload không hợp lệ' })
     }
     var data = body.data || {}
-    var couple = body.couple || {}
     var attendKey = data.attendance
     var attendLabel = ATTEND_VI[attendKey] || attendKey || ''
-    var coupleStr = [couple.brideName, couple.groomName].filter(Boolean).join(' & ')
 
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet()
     ensureHeader(sheet)
@@ -77,9 +77,6 @@ function doPost(e) {
       String(data.fullName || ''),
       attendLabel,
       String(data.message || ''),
-      String(body.locale || ''),
-      coupleStr,
-      String(body.userAgent || ''),
     ])
     return jsonOut({ ok: true })
   } catch (err) {
