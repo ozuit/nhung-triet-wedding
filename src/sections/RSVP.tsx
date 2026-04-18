@@ -17,17 +17,28 @@ function isValidUrl(value: string) {
   }
 }
 
-function rsvpSubmitTarget(rsvp: InvitationContent['rsvp']): { enabled: boolean; url: string } {
+type RsvpSubmitTarget =
+  | { enabled: false; url: ''; mode: null }
+  | { enabled: true; url: string; mode: 'googleSheet' }
+  | { enabled: true; url: string; mode: 'webhook' }
+
+function rsvpSubmitTarget(rsvp: InvitationContent['rsvp']): RsvpSubmitTarget {
   if (rsvp.type === 'googleSheet' && isValidUrl(rsvp.webAppUrl)) {
     const u = rsvp.webAppUrl
-    if (u.includes('YOUR_DEPLOYMENT_ID')) return { enabled: false, url: '' }
-    return { enabled: true, url: u }
+    if (u.includes('YOUR_DEPLOYMENT_ID')) return { enabled: false, url: '', mode: null }
+    return { enabled: true, url: u, mode: 'googleSheet' }
   }
-  return { enabled: false, url: '' }
+  if (rsvp.type === 'webhook' && isValidUrl(rsvp.endpointUrl)) {
+    const u = rsvp.endpointUrl
+    if (/example\.com/i.test(u)) return { enabled: false, url: '', mode: null }
+    return { enabled: true, url: u, mode: 'webhook' }
+  }
+  return { enabled: false, url: '', mode: null }
 }
 
 export default function RSVP({ content }: { content: InvitationContent }) {
-  const { enabled: isEnabled, url: endpointUrl } = rsvpSubmitTarget(content.rsvp)
+  const submitTarget = rsvpSubmitTarget(content.rsvp)
+  const isEnabled = submitTarget.enabled
 
   const [form, setForm] = useState<RsvpForm>({
     fullName: '',
@@ -54,6 +65,9 @@ export default function RSVP({ content }: { content: InvitationContent }) {
 
     setStatus({ state: 'submitting' })
     try {
+      const target = rsvpSubmitTarget(content.rsvp)
+      if (!target.enabled) return
+
       const payload = {
         type: 'wedding_rsvp' as const,
         locale: content.locale,
@@ -62,29 +76,52 @@ export default function RSVP({ content }: { content: InvitationContent }) {
         data: form,
         userAgent: navigator.userAgent,
       }
-      // form-urlencoded + field `payload` — tránh preflight CORS với Google Apps Script Web App
-      const body = new URLSearchParams()
-      body.set('payload', JSON.stringify(payload))
 
-      const res = await fetch(endpointUrl, { method: 'POST', body })
-
-      const text = await res.text().catch(() => '')
-      let parsed: { ok?: boolean; error?: string } | null = null
-      try {
-        parsed = JSON.parse(text) as { ok?: boolean; error?: string }
-      } catch {
-        /* Apps Script đôi khi bọc HTML — coi là lỗi */
-      }
-
-      if (!res.ok) {
-        throw new Error(text || `Máy chủ trả lỗi ${res.status}`)
-      }
-      if (!parsed || parsed.ok !== true) {
-        throw new Error(
-          parsed && parsed.ok === false && parsed.error
-            ? parsed.error
-            : (text.slice(0, 240) || 'Không đọc được phản hồi từ Apps Script (kiểm tra Web App URL).'),
-        )
+      if (target.mode === 'googleSheet') {
+        const body = new URLSearchParams()
+        body.set('payload', JSON.stringify(payload))
+        const res = await fetch(target.url, { method: 'POST', body })
+        const text = await res.text().catch(() => '')
+        let parsed: { ok?: boolean; error?: string } | null = null
+        try {
+          parsed = JSON.parse(text) as { ok?: boolean; error?: string }
+        } catch {
+          /* HTML / không phải JSON */
+        }
+        if (!res.ok) {
+          throw new Error(text || `Máy chủ trả lỗi ${res.status}`)
+        }
+        if (!parsed || parsed.ok !== true) {
+          throw new Error(
+            parsed && parsed.ok === false && parsed.error
+              ? parsed.error
+              : (text.slice(0, 240) || 'Không đọc được phản hồi từ Apps Script (kiểm tra Web App URL).'),
+          )
+        }
+      } else {
+        const res = await fetch(target.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        const text = await res.text().catch(() => '')
+        if (!res.ok) {
+          throw new Error(text || `Webhook trả lỗi ${res.status}`)
+        }
+        if (text.trim()) {
+          try {
+            const j = JSON.parse(text) as { ok?: boolean; error?: string }
+            if (j.ok === false) {
+              throw new Error(j.error || 'Webhook từ chối')
+            }
+          } catch (err) {
+            if (err instanceof SyntaxError) {
+              /* thân rỗng hoặc không phải JSON — coi là thành công nếu HTTP 200 */
+            } else {
+              throw err
+            }
+          }
+        }
       }
 
       setStatus({ state: 'success' })
@@ -106,9 +143,11 @@ export default function RSVP({ content }: { content: InvitationContent }) {
 
           {!isEnabled ? (
             <div className="mt-4 break-words text-center text-[14px] leading-relaxed text-[var(--invite-muted)] md:text-sm md:leading-normal">
-              RSVP chưa cấu hình. Đặt <code className="rounded bg-black/5 px-1 py-0.5">webAppUrl</code> (Apps Script Web
-              App) trong <code className="rounded bg-black/5 px-1 py-0.5">src/content/invitation.vi.ts</code> — xem{' '}
-              <code className="rounded bg-black/5 px-1 py-0.5">google-apps-script/Code.gs</code>.
+              RSVP chưa cấu hình. Trong{' '}
+              <code className="rounded bg-black/5 px-1 py-0.5">src/content/invitation.vi.ts</code>:{' '}
+              <code className="rounded bg-black/5 px-1 py-0.5">webAppUrl</code> (Apps Script) hoặc{' '}
+              <code className="rounded bg-black/5 px-1 py-0.5">type: &apos;webhook&apos;</code> + URL Make/n8n → Sheet nếu
+              Google chặn Apps Script.
             </div>
           ) : null}
 

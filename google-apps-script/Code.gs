@@ -1,14 +1,23 @@
 /**
  * Dán file này vào Apps Script gắn với Google Sheet (Mở Sheet → Tiện ích mở rộng → Apps Script).
- * Triển khai: Triển khai → Triển khai mới → Loại: Ứng dụng web
- *   - Chạy dưới tên: Tôi
- *   - Quyền truy cập: Bất kỳ ai (quan trọng để trang thiệp POST được)
- * Copy URL Web App (kết thúc /exec) vào `webAppUrl` trong invitation.vi.ts
+ *
+ * Trước khi Triển khai Web App: chọn authorizeOnce → Chạy → ủy quyền Sheet.
+ *
+ * Nếu màn hình Google báo "Ứng dụng này đã bị chặn" (không có nút bỏ qua):
+ *   - Cài đặt dự án → Dự án Google Cloud: thử "Ngắt liên kết" về dự án mặc định của Apps Script rồi Chạy authorizeOnce lại.
+ *   - Hoặc bỏ Apps Script: trong site đổi RSVP sang type 'webhook' + Make.com (Webhook → Google Sheets).
+ *
+ * Triển khai Web App: Chạy dưới tên Tôi, quyền Bất kỳ ai. URL /exec → webAppUrl trong invitation.vi.ts
  */
 
 var HEADER = ['Thời gian', 'Họ tên', 'Tham dự', 'Lời nhắn', 'Ngôn ngữ', 'Cặp đôi', 'User-Agent']
 
 var ATTEND_VI = { yes: 'Có', maybe: 'Chưa chắc', no: 'Không' }
+
+/** Chạy một lần (nút Chạy) để Google xin quyền truy cập Sheet — bắt buộc trước khi triển khai Web App. */
+function authorizeOnce() {
+  SpreadsheetApp.getActiveSpreadsheet().getName()
+}
 
 function jsonOut(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON)

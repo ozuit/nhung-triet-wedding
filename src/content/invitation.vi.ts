@@ -20,12 +20,20 @@ export type RsvpConfig =
     }
   | {
       /**
-       * Lưu câu trả lời vào Google Sheet qua Apps Script (Web App).
-       * Tạo Sheet → Tiện ích mở rộng → Apps Script → dán `google-apps-script/Code.gs` → Triển khai Web App
-       * (quyền: Bất kỳ ai). Gán URL `/exec` vào `webAppUrl`.
+       * Lưu vào Google Sheet qua Apps Script Web App (`google-apps-script/Code.gs`).
+       * Nếu Google chặn hoàn toàn (“Ứng dụng này đã bị chặn”), dùng `type: 'webhook'` + Make.com/n8n
+       * (Webhook nhận JSON → module Google Sheets thêm dòng) — OAuth kết nối Sheet trên Make, không qua Apps Script.
        */
       type: 'googleSheet'
       webAppUrl: string
+    }
+  | {
+      /**
+       * POST JSON giống payload trong `RSVP.tsx` (type: wedding_rsvp, data, couple…).
+       * Dùng URL webhook Make/n8n/Pipedream… rồi map sang Google Sheet.
+       */
+      type: 'webhook'
+      endpointUrl: string
     }
 
 export type InvitationContent = {
