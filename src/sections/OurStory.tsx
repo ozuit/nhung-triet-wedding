@@ -1,5 +1,6 @@
 import type { InvitationContent } from '../content/invitation.vi'
 import { figmaAssets } from '../figma/assets'
+import { publicUrl } from '../publicUrl'
 import { Section } from './_shared'
 
 function StoryCard({ text }: { text: string }) {
@@ -15,8 +16,8 @@ function StoryCard({ text }: { text: string }) {
 }
 
 export default function OurStory({ content }: { content: InvitationContent }) {
-  const leftImg = content.gallery.images[6]?.src ?? '/gallery/07.png'
-  const rightImg = content.gallery.images[7]?.src ?? '/gallery/08.png'
+  const leftImg = content.gallery.images[6]?.src ?? publicUrl('/gallery/07.png')
+  const rightImg = content.gallery.images[7]?.src ?? publicUrl('/gallery/08.png')
 
   return (
     <Section id="story">

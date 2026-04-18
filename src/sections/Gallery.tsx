@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import type { InvitationContent } from "../content/invitation.vi";
+import { publicUrl } from "../publicUrl";
 import { Section } from "./_shared";
 
 export default function Gallery({ content }: { content: InvitationContent }) {
@@ -53,7 +54,9 @@ export default function Gallery({ content }: { content: InvitationContent }) {
         <div className="mx-auto mt-10 hidden h-[min(578px,calc(100vw-3rem))] w-full max-w-[1105px] md:grid md:grid-cols-4 md:grid-rows-[1fr_1fr] md:gap-4 lg:gap-5">
           {desktopTiles.map(({ index: i, gridClass }) => {
             const img = imgs[i];
-            const fallback = `/gallery/${String(i + 1).padStart(2, "0")}.png`;
+            const fallback = publicUrl(
+              `/gallery/${String(i + 1).padStart(2, "0")}.png`,
+            );
             return (
               <button
                 key={img?.src ?? String(i)}
