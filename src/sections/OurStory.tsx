@@ -16,8 +16,8 @@ function StoryCard({ text }: { text: string }) {
 }
 
 export default function OurStory({ content }: { content: InvitationContent }) {
-  const leftImg = content.gallery.images[6]?.src ?? publicUrl('/gallery/07.png')
-  const rightImg = content.gallery.images[7]?.src ?? publicUrl('/gallery/08.png')
+  const leftImg = content.gallery.images[6]?.src ?? publicUrl('/gallery/07.webp')
+  const rightImg = content.gallery.images[7]?.src ?? publicUrl('/gallery/08.webp')
 
   return (
     <Section id="story">

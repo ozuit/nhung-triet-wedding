@@ -8,7 +8,7 @@ export default function Hero({ content }: { content: InvitationContent }) {
     <div className="relative min-h-[520px] h-[min(100svh,680px)] w-full overflow-hidden bg-black md:h-[680px] md:min-h-0">
       <img
         alt={heroBg?.alt ?? ""}
-        src={heroBg?.src ?? publicUrl("/gallery/20.png")}
+        src={heroBg?.src ?? publicUrl("/gallery/20.webp")}
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-black/50" />

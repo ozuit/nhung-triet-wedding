@@ -43,7 +43,7 @@ export default function CoupleIntro({
           <div className="flex w-full min-w-0 flex-1 flex-col items-center gap-5 md:max-w-none">
             <CouplePortrait
               alt={content.couple.groomName}
-              src={content.gallery.images[1]?.src ?? publicUrl("/gallery/02.png")}
+              src={content.gallery.images[1]?.src ?? publicUrl("/gallery/02.webp")}
             />
             <div className="text-center">
               <div className="w-full text-center font-(family-name:--font-script) text-[clamp(38px,8.5vw,60px)] leading-[1.2] text-[#a40781] whitespace-normal md:whitespace-nowrap md:text-[clamp(32px,7vw,60px)]">
@@ -61,7 +61,7 @@ export default function CoupleIntro({
           <div className="flex w-full min-w-0 flex-1 flex-col items-center gap-5 md:max-w-none">
             <CouplePortrait
               alt={content.couple.brideName}
-              src={content.gallery.images[2]?.src ?? publicUrl("/gallery/03.png")}
+              src={content.gallery.images[2]?.src ?? publicUrl("/gallery/03.webp")}
             />
             <div className="text-center">
               <div className="w-full text-center font-(family-name:--font-script) text-[clamp(38px,8.5vw,60px)] leading-[1.2] text-[#a40781] whitespace-normal md:whitespace-nowrap md:text-[clamp(32px,7vw,60px)]">

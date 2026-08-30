@@ -1,5 +1,5 @@
 /**
- * Resolves a path served from `public/` (root-relative, e.g. `/gallery/01.png`)
+ * Resolves a path served from `public/` (root-relative, e.g. `/gallery/01.webp`)
  * for the current Vite `base` (required on GitHub Pages project URLs).
  */
 export function publicUrl(rootRelativePath: string): string {

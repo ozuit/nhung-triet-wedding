@@ -55,7 +55,7 @@ export default function Gallery({ content }: { content: InvitationContent }) {
           {desktopTiles.map(({ index: i, gridClass }) => {
             const img = imgs[i];
             const fallback = publicUrl(
-              `/gallery/${String(i + 1).padStart(2, "0")}.png`,
+              `/gallery/${String(i + 1).padStart(2, "0")}.webp`,
             );
             return (
               <button
